@@ -3,7 +3,7 @@ require daslib/media
 
 let elemSz = 50.0
 let screenHei = float(get_desktop_height() - 200)
-let CELL_SIZE = 75.0
+let CELL_SIZE = 30.0
 
 let windowHeight = 560.0
 let windowWidth = 1024.0
@@ -230,9 +230,29 @@ def draw_ui_builder(var builder: Builder)
 
 def draw_available_good(goods:array<int>)
     for good, i in goods, range(length(goods))
+        fill_rect(float(get_desktop_width()) - elemSz - 29.0, 50.0 + float(i) * (elemSz + 5.0), elemSz + 2.0, elemSz + 2.0, 0xFFFFFFFF)
         if good == G_WOOD
-            fill_rect(float(get_desktop_width()) - elemSz - 29.0, 50.0 + float(i) * (elemSz + 5.0), elemSz + 2.0, elemSz + 2.0, 0xFFFFFFFF)
             wood |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_BOARDS
+            boards |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_FURNITURE
+            furniture |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_MILK
+            milk |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_CHEESE
+            cheese |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_OIL
+            oil |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_FUEL
+            fuel |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_WATER
+            water |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_PASSANGER
+            passanger |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_MAIL
+            mail |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
+        elif good == G_REFUSE
+            refuse |> draw_image(float(get_desktop_width()) - elemSz - 30.0, 50.0 + float(i) * (elemSz + 5.0),0xFFFFFFFF, elemSz)
 
 
 [decs(stage=draw_ui)]

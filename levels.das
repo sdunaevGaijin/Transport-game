@@ -19,11 +19,33 @@ let cellSnow <- create_image("images/snow_cell.png")
 let cellMountain <- create_image("images/mount_cell.png")
 
 let levels_src: array<string> <- [{auto
-    "GGGGGGGG";
-    "GGWWGGGC";
-    "GSWWWSGC";
-    "GSWWMMGG";
-    "GGWMCCMG"
+    "WWWWWWWWGCCGWWWWGCCCCCCGGGGGGGGGGGG";
+    "WWWWWWWWGWGGWWWWGGCCGGCGGGGGGGGGGGG";
+    "WWWGWWWWWWGGWWWGGGGGGGGGGGGGGGGGGGG";
+    "WWWGWWWWWWWGWWWGGGGGGGGGGGGGGGGGGGG";
+    "WWWGGWWWWGWGWWWGGGGGGGGGGGGGGGGGGGG";
+    "WGWGGWWWWGWWWWGGGGGGGGGGGGGGGGGGGGG";
+    "WGWGGWWGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWWGGGWGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWGGGWWGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWWWWGGGGGMGGGGGGGGGGGGGGGGGGGGGGGG";
+    "WWWWWGGGGMMMGGGGGGGGGGGGGGGSSSSSSSS";
+    "WWWWWGGGGGWMGGGGGGGGWWGWGGGSWWWSSSS";
+    "WGGGGGGWWGGWWGGGGGGGWWGWGGGGWWSSSSS";
+    "WGGGGGGWWWGGWWGGGGGWWWWWWGGMWWSSSSS";
+    "WGGGGGWWGWWGGWWGGGGWWWWWWWGGGWWSSSS";
+    "WGGGGGWWGWWWGGWWGGGGGGGGGGGGGWWSSSS";
+    "WGGGGSWWWWWGGWWWGWGGGGGGGGGGGWWSSSM";
+    "WWWWWWWWWWGWWWWWGWGGGGGGGGGGGWWSSSM";
+    "WWGWWWWWWWWWWWWWWWWWWWWGSSSSSSSSSSS";
+    "WWGGGSSSSGWWWWWWWWWWWWWGSSSSSSSSSSS";
+    "WGGGSSSSSGGWWWWWWWWWWWWSSSSSSSSSSSS";
+    "WSSSSSSSSSSSSSSSSSSSSWGSSSSSSSSSSSS";
+    "WSSSSSSSSSSSSSSSSSSSSWSSSSSSSWSSSSS"
 }]
 
 var levelSize = int2(0, 0)
@@ -62,9 +84,44 @@ def make_factory(pos:int2; f_type:int; need_good, product_good: int2)
         cmp |> set("eid", eid)
         apply_decs_template(cmp, [[Factory ftype = f_type, pos = pos, needGood = need_good.x, productGood = product_good.x]])
 
+def make_city(pos:int2; name:string)
+    create_entity <| @ ( eid, cmp )
+        cmp |> set("eid", eid)
+        apply_decs_template(cmp, [[City name = name, pos = pos]])
+
 def create_objects
-    make_factory(int2(1, 2), F_WOOD_STORAGE, int2(-1, 0), int2(G_WOOD, 20))
-    make_factory(int2(5, 0), F_SAWMILL, int2(G_WOOD, 20), int2(G_BOARDS, 15))
+    //make_city(int2(4, 7), "London")
+    make_factory(int2(20, 2), F_WOOD_STORAGE, int2(-1, 0), int2(G_WOOD, 20))
+    make_factory(int2(25, 12), F_WOOD_STORAGE, int2(-1, 0), int2(G_WOOD, 20))
+    make_factory(int2(34, 8), F_WOOD_STORAGE, int2(-1, 0), int2(G_WOOD, 20))
+    make_factory(int2(6, 16), F_WOOD_STORAGE, int2(-1, 0), int2(G_WOOD, 20))
+    make_factory(int2(7, 7), F_SAWMILL, int2(G_WOOD, 20), int2(G_BOARDS, 15))
+    make_factory(int2(34, 0), F_SAWMILL, int2(G_WOOD, 20), int2(G_BOARDS, 15))
+    make_factory(int2(15, 17), F_SAWMILL, int2(G_WOOD, 20), int2(G_BOARDS, 15))
+    make_factory(int2(10, 10), F_FURNITURE, int2(G_BOARDS, 15), int2(G_FURNITURE, 15))
+    make_factory(int2(4, 20), F_FURNITURE, int2(G_BOARDS, 15), int2(G_FURNITURE, 15))
+    make_factory(int2(29, 13), F_FURNITURE, int2(G_BOARDS, 15), int2(G_FURNITURE, 15))
+    make_factory(int2(15, 4), F_FARM, int2(-1, 0), int2(G_MILK, 35))
+    make_factory(int2(17, 10), F_FARM, int2(-1, 0), int2(G_MILK, 35))
+    make_factory(int2(13, 14), F_FARM, int2(-1, 0), int2(G_MILK, 35))
+    make_factory(int2(22, 25), F_FARM, int2(-1, 0), int2(G_MILK, 35))
+    make_factory(int2(5, 10), F_CHEESE_DAIRY, int2(G_MILK, 22), int2(G_CHEESE, 17))
+    make_factory(int2(12, 20), F_CHEESE_DAIRY, int2(G_MILK, 22), int2(G_CHEESE, 17))
+    make_factory(int2(2, 18), F_CHEESE_DAIRY, int2(G_MILK, 22), int2(G_CHEESE, 17))
+    make_factory(int2(25, 7), F_CHEESE_DAIRY, int2(G_MILK, 22), int2(G_CHEESE, 17))
+    make_factory(int2(33, 15), F_CHEESE_DAIRY, int2(G_MILK, 22), int2(G_CHEESE, 17))
+    make_factory(int2(32, 20), F_OIL_DERRICK, int2(-1, 0), int2(G_OIL, 18))
+    make_factory(int2(29, 25), F_OIL_DERRICK, int2(-1, 0), int2(G_OIL, 18))
+    make_factory(int2(7, 23), F_OIL_DERRICK, int2(-1, 0), int2(G_OIL, 18))
+    make_factory(int2(8, 1), F_OIL_DERRICK, int2(-1, 0), int2(G_OIL, 18))
+    make_factory(int2(30, 3), F_OIL_DERRICK, int2(-1, 0), int2(G_OIL, 18))
+    make_factory(int2(24, 15), F_OIL_DERRICK, int2(-1, 0), int2(G_OIL, 18))
+    make_factory(int2(20, 20), F_REFINERY, int2(G_OIL, 18), int2(G_FUEL, 30))
+    make_factory(int2(2, 8), F_REFINERY, int2(G_OIL, 18), int2(G_FUEL, 30))
+    make_factory(int2(20, 5), F_REFINERY, int2(G_OIL, 18), int2(G_FUEL, 30))
+    make_factory(int2(15, 2), F_REFINERY, int2(G_OIL, 18), int2(G_FUEL, 30))
+    make_factory(int2(1, 6), F_PUMPING_STATION, int2(-1, 0), int2(G_WATER, 70))
+    make_factory(int2(25, 16), F_PUMPING_STATION, int2(-1, 0), int2(G_WATER, 70))
 
 def create_terminal(pos:int2; t_type, capacity:int)
     create_entity <| @ ( eid, cmp )
@@ -97,6 +154,10 @@ def draw_factory(var factory: Factory)
         imgRefinery |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
     draw_good_indicator(factory.productGood, float2(factory.pos.x, factory.pos.y), 0.4, true)
     draw_good_indicator(factory.needGood, float2(factory.pos.x, factory.pos.y) + float2(0.0, 0.5), 0.4, true)
+
+[decs(stage=draw)]
+def draw_city(city: City)
+    imgCity |> draw_image(float(city.pos.x), float(city.pos.y), 0xFFFFFFFF, float2(1.0, 1.0))
 
 [decs(stage=draw)]
 def draw_roads(var road: Road)
