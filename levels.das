@@ -3,6 +3,20 @@ require daslib/media
 require tools
 
 let imgFarm <- create_image("images/farm.png")
+let imgCity <- create_image("images/city.png")
+let imgWoodStorage <- create_image("images/wood_storage.png")
+let imgSawmill <- create_image("images/sawmill.png")
+let imgFurnFactory <- create_image("images/furniture_factory.png")
+let imgDairy <- create_image("images/cheese_dairy.png")
+let imgPumpStation <- create_image("images/pumping_station.png")
+let imgDerrick <- create_image("images/oil_derrick.png")
+let imgRefinery <- create_image("images/refinery.png")
+
+let cellGround <- create_image("images/ground_cell.png")
+let cellWater <- create_image("images/water_cell.png")
+let cellSand <- create_image("images/sand_cell.png")
+let cellSnow <- create_image("images/snow_cell.png")
+let cellMountain <- create_image("images/mount_cell.png")
 
 let levels_src: array<string> <- [{auto
     "GGGGGGGG";
@@ -65,7 +79,24 @@ def create_road(pos:int2; r_type:int; dir:int2)
 [decs(stage=draw)]
 def draw_factory(var factory: Factory)
     let imgSize = float2(1.0, 1.0)
-    imgFarm |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    if factory.ftype == F_WOOD_STORAGE
+        imgWoodStorage |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    elif factory.ftype == F_SAWMILL
+        imgSawmill |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    elif factory.ftype == F_FURNITURE
+        imgFurnFactory |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    elif factory.ftype == F_FARM
+        imgFarm |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    elif factory.ftype == F_CHEESE_DAIRY
+        imgDairy |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    elif factory.ftype == F_PUMPING_STATION
+        imgPumpStation |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    elif factory.ftype == F_OIL_DERRICK
+        imgDerrick |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    elif factory.ftype == F_REFINERY
+        imgRefinery |> draw_image(float(factory.pos.x), float(factory.pos.y), 0xFFFFFFFF, imgSize)
+    draw_good_indicator(factory.productGood, float2(factory.pos.x, factory.pos.y), 0.4, true)
+    draw_good_indicator(factory.needGood, float2(factory.pos.x, factory.pos.y) + float2(0.0, 0.5), 0.4, true)
 
 [decs(stage=draw)]
 def draw_roads(var road: Road)
@@ -113,10 +144,8 @@ def get_available_good(var goods: array<int>; terminal:EntityId)
     query(terminal) <| $ (pos:int2)
         termPos = pos
     query <| $ (pos:int2; productGood:int)
-        print("{pos}, G:{productGood}")
         if abs(pos.x - termPos.x) + abs(pos.y - termPos.y) <= 1
             if goods |> find_index(productGood) < 0
                 goods |> push(productGood)
-    print("goods: {length(goods)}")
 
 

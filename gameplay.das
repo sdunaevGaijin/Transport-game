@@ -120,15 +120,15 @@ def draw_level
         for j in range(levelSize.x)
             let cell = level[i * levelSize.x + j]
             if cell == GROUND
-                fill_rect(j, i, 1, 1, 0xFFAAFFAA)
+                cellGround |> draw_image(float(j), float(i), 0xFFFFFFFF, float2(1.0, 1.0))
             elif cell == WATER
-                fill_rect(j, i, 1, 1, 0xFF0000FF)
+                cellWater |> draw_image(float(j), float(i), 0xFFFFFFFF, float2(1.0, 1.0))
             elif cell == SAND
-                fill_rect(j, i, 1, 1, 0xFFFFFF00)
+                cellSand |> draw_image(float(j), float(i), 0xFFFFFFFF, float2(1.0, 1.0))
             elif cell == SNOW
-                fill_rect(j, i, 1, 1, 0xFFFFFFFF)
+                cellSnow |> draw_image(float(j), float(i), 0xFFFFFFFF, float2(1.0, 1.0))
             elif cell == MOUNTAIN
-                fill_rect(j, i, 1, 1, 0xFF777777)
+                cellMountain |> draw_image(float(j), float(i), 0xFFFFFFFF, float2(1.0, 1.0))
    
 [decs(stage=draw_ui)]
 def draw_balance(var player: PlayerInfo)

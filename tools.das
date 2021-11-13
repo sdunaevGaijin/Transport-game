@@ -3,7 +3,7 @@ require daslib/media
 
 let elemSz = 50.0
 let screenHei = float(get_desktop_height() - 200)
-let CELL_SIZE = 50.0
+let CELL_SIZE = 75.0
 
 let windowHeight = 560.0
 let windowWidth = 1024.0
@@ -116,6 +116,16 @@ let shopTruck <- create_image("images/truck_shop.png")
 let imgApply <- create_image("images/apply.png")
 
 let wood <- create_image("images/wood.png")
+let boards <- create_image("images/boards.png")
+let furniture <- create_image("images/furniture.png")
+let milk <- create_image("images/milk.png")
+let cheese <- create_image("images/cheese.png")
+let water <- create_image("images/water.png")
+let oil <- create_image("images/oil.png")
+let fuel <- create_image("images/fuel.png")
+let passanger <- create_image("images/passanger.png")
+let mail <- create_image("images/mail.png")
+let refuse <- create_image("images/refuse.png")
 
 [decs_template]
 struct Builder
@@ -426,6 +436,34 @@ def unit_builder_on_click(mouse:float2)
                         found = true
         return true
     return found
+
+def draw_good_indicator(good:int; pos:float2; size:float; need_back:bool)
+    if good >= 0
+        if need_back
+            fill_circle(pos.x + size * 0.5, pos.y + size * 0.5, size * 0.6, 0x77FFFFFF) 
+        if good == G_PASSANGER
+            passanger |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_MAIL
+            mail |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_REFUSE
+            refuse |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_WOOD
+            wood |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_BOARDS
+            boards |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_FURNITURE
+            furniture |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_MILK
+            milk |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_CHEESE
+            cheese |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_WATER
+            water |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_OIL
+            oil |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+        elif good == G_FUEL
+            fuel |> draw_image(pos.x, pos.y, 0xFFFFFFFF, size)
+    
 
 [decs(stage=draw_help)]
 def draw_help(help: Help)

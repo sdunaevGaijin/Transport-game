@@ -110,32 +110,29 @@ def draw_planes(unit:Plane)
     if unit.dir.y > 0.0
         angle = -angle
     if unit.model == PM_A380
-        indA380 |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(1.0, 1.0), angle)
+        indA380 |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(0.75, 0.75), angle)
     elif unit.model == PM_BOEING
-        indBoeing |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0),0xFFFFFFFF, float2(1.0, 1.0), angle)
+        indBoeing |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0),0xFFFFFFFF, float2(0.75, 0.75), angle)
     if !unit.revert
-        draw_good_indicator(unit.product, unit.pos)
+        draw_good_indicator(unit.product, unit.pos - float2(0.3, 1.0), 0.5, false)
 
 [decs(stage=draw)]
 def draw_ships(unit:Ship)
-    var angle = acos(clamp(dot(unit.dir, float2(-1.0, 0.0)), -1.0, 1.0))
-    if unit.dir.y > 0.0
-        angle = -angle
     if unit.model == SM_TITANIC
-        indTitanic |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(0.5, 0.5), angle)
+        indTitanic |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(1.0, 1.0), 0.0)
     elif unit.model == SM_CARGO
-        indCargo |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0),0xFFFFFFFF, float2(0.5, 0.5), angle)
+        indCargo |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0),0xFFFFFFFF, float2(1.0, 1.0), 0.0)
     if !unit.revert
-        draw_good_indicator(unit.product, unit.pos)
+        draw_good_indicator(unit.product, unit.pos - float2(0.3, 1.0), 0.5, false)
 
 [decs(stage=draw)]
 def draw_trucks(unit:Truck)
     var angle = acos(clamp(dot(unit.dir, float2(-1.0, 0.0)), -1.0, 1.0))
     if unit.dir.y > 0.0
         angle = -angle
-    indTruck |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(0.5, 0.5), angle)
+    indTruck |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(1.0, 1.0), angle)
     if !unit.revert
-        draw_good_indicator(unit.product, unit.pos)
+        draw_good_indicator(unit.product, unit.pos - float2(0.3, 1.0), 0.5, false)
 
 def confirm_create_unit
     var confirm = false
@@ -156,6 +153,12 @@ def confirm_create_unit
                                     unit.used = true
     return confirm
 
+def can_unload(term_pos:int2; good:int)
+    let found = find_query <| $ [REQUIRE(ftype)] (pos:int2; needGood:int)
+        if needGood == good && abs(pos.x - term_pos.x) + abs(pos.y - term_pos.y) <= 1
+            return true
+    return found
+
 [decs(stage=update)]
 def update_planes(var plane:Plane)
     let dt = get_delta_time()
@@ -167,15 +170,17 @@ def update_planes(var plane:Plane)
                 plane.pos = destPos
                 plane.speed = 0.0
                 plane.dir = float2(1.0, 0.0)
-                if plane.curUnloadTime <= -1.0
-                    plane.curUnloadTime = plane.unloadingTime
-                plane.curUnloadTime -= dt
-                if plane.curUnloadTime <= 0.0
-                    plane.curUnloadTime = -1.0
-                    let reward = !plane.revert ? ((length(good_reward) > plane.product ? good_reward[plane.product] : 0) * plane.volume - plane.serviceCost) : -plane.serviceCost
-                    change_balance(reward)
-                    create_cash_diff(destPos, reward)
-                    plane.revert = !plane.revert
+                let canUn = plane.revert || can_unload(pos, plane.product)
+                if canUn
+                    if plane.curUnloadTime <= -1.0
+                        plane.curUnloadTime = plane.unloadingTime
+                    plane.curUnloadTime -= dt
+                    if plane.curUnloadTime <= 0.0
+                        plane.curUnloadTime = -1.0
+                        let reward = !plane.revert ? ((length(good_reward) > plane.product ? good_reward[plane.product] : 0) * plane.volume - plane.serviceCost) : -plane.serviceCost
+                        change_balance(reward)
+                        create_cash_diff(destPos, reward)
+                        plane.revert = !plane.revert
             else
                 plane.dir = normalize(destPos - plane.pos)
                 if plane.speed < plane.maxSpeed
@@ -236,17 +241,19 @@ def update_ships(var ship:Ship)
             initialize_ship(ship.path, ship.source, ship.destination)
         if length_sq(destPos - ship.pos) < 0.0025
             ship.pos = destPos
-            ship.speed = 0.0 
-            if ship.curUnloadTime <= -1.0
-                ship.curUnloadTime = ship.unloadingTime
-            ship.curUnloadTime -= dt
-            if ship.curUnloadTime <= 0.0
-                ship.curUnloadTime = -1.0
-                let reward = !ship.revert ? ((length(good_reward) > ship.product ? good_reward[ship.product] : 0) * ship.volume - ship.serviceCost) : -ship.serviceCost
-                change_balance(reward)
-                create_cash_diff(destPos, reward)
-                ship.revert = !ship.revert
-                ship.cur_point = ship.revert ? length(ship.path) - 1 : 0
+            ship.speed = 0.0
+            let canUn = ship.revert || can_unload(pos, ship.product)
+            if canUn
+                if ship.curUnloadTime <= -1.0
+                    ship.curUnloadTime = ship.unloadingTime
+                ship.curUnloadTime -= dt
+                if ship.curUnloadTime <= 0.0
+                    ship.curUnloadTime = -1.0
+                    let reward = !ship.revert ? ((length(good_reward) > ship.product ? good_reward[ship.product] : 0) * ship.volume - ship.serviceCost) : -ship.serviceCost
+                    change_balance(reward)
+                    create_cash_diff(destPos, reward)
+                    ship.revert = !ship.revert
+                    ship.cur_point = ship.revert ? length(ship.path) - 1 : 0
         elif length_sq(destPos - ship.pos) <= 1.0025
             ship.dir = normalize(destPos - ship.pos)
             if length_sq(destPos - ship.pos) > sqr(ship.speed * dt)
@@ -259,7 +266,7 @@ def update_ships(var ship:Ship)
                 if length_sq(destP - ship.pos) < 0.0025
                     ship.pos = destP
                     ship.cur_point += ship.revert ? -1 : 1
-                destP = length(ship.path) > ship.cur_point ? (float2(ship.path[ship.cur_point].x, ship.path[ship.cur_point].y) + float2(0.5, 0.5)) : destPos
+                destP = length(ship.path) > ship.cur_point && ship.cur_point >= 0 ? (float2(ship.path[ship.cur_point].x, ship.path[ship.cur_point].y) + float2(0.5, 0.5)) : destPos
                 ship.dir = normalize(destP - ship.pos)
                 if ship.speed < ship.maxSpeed
                     ship.speed = min(ship.maxSpeed, ship.speed + dt * ship.accel)
@@ -320,16 +327,18 @@ def update_trucks(var truck:Truck)
         if length_sq(destPos - truck.pos) < 0.0025
             truck.pos = destPos
             truck.speed = 0.0 
-            if truck.curUnloadTime <= -1.0
-                truck.curUnloadTime = truck.unloadingTime
-            truck.curUnloadTime -= dt
-            if truck.curUnloadTime <= 0.0
-                truck.curUnloadTime = -1.0
-                let reward = !truck.revert ? ((length(good_reward) > truck.product ? good_reward[truck.product] : 0) * truck.volume - truck.serviceCost) : -truck.serviceCost
-                change_balance(reward)
-                create_cash_diff(destPos, reward)
-                truck.revert = !truck.revert
-                truck.cur_point = truck.revert ? length(truck.path) - 1 : 0
+            let canUn = truck.revert || can_unload(pos, truck.product)
+            if canUn
+                if truck.curUnloadTime <= -1.0
+                    truck.curUnloadTime = truck.unloadingTime
+                truck.curUnloadTime -= dt
+                if truck.curUnloadTime <= 0.0
+                    truck.curUnloadTime = -1.0
+                    let reward = !truck.revert ? ((length(good_reward) > truck.product ? good_reward[truck.product] : 0) * truck.volume - truck.serviceCost) : -truck.serviceCost
+                    change_balance(reward)
+                    create_cash_diff(destPos, reward)
+                    truck.revert = !truck.revert
+                    truck.cur_point = truck.revert ? length(truck.path) - 1 : 0
         elif length_sq(destPos - truck.pos) <= 1.0025
             truck.dir = normalize(destPos - truck.pos)
             if length_sq(destPos - truck.pos) > sqr(truck.speed * dt)
@@ -350,7 +359,3 @@ def update_trucks(var truck:Truck)
                     truck.pos += truck.dir * truck.speed * dt
                 else
                     truck.pos = destP
-
-def draw_good_indicator(good:int; pos:float2)    
-    if good == G_WOOD
-        wood |> draw_image(pos.x - 0.3, pos.y - 1.0, 0xFFFFFFFF, 0.6)     
