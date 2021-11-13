@@ -3,7 +3,7 @@ require daslib/media
 
 let elemSz = 50.0
 let screenHei = float(get_desktop_height() - 200)
-let CELL_SIZE = 30.0
+let CELL_SIZE = 75.0
 
 let windowHeight = 560.0
 let windowWidth = 1024.0
