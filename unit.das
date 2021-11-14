@@ -67,39 +67,41 @@ def create_unit(position: float2; u_type, volume, in_product, model, service: in
 def initialize_ship(var ship_path:array<int2>; ship_source, ship_destination:EntityId)
     var start = int2(-1, -1)
     var end = int2(-1, -1)
-    query(ship_source) <| $ (pos: int2)
-        if pos.x < levelSize.x - 1 && level[pos.y * levelSize.x + pos.x + 1] == WATER
-            start = int2(pos.x + 1, pos.y)
-        elif pos.x > 0 && pos.x < levelSize.x - 1 && level[pos.y * levelSize.x + pos.x - 1] == WATER
-            start = int2(pos.x - 1, pos.y)
-        elif pos.y < levelSize.y - 1 && level[(pos.y + 1)* levelSize.x + pos.x] == WATER
-            start = int2(pos.x, pos.y + 1)
-        elif pos.y > 0 && level[(pos.y - 1)* levelSize.x + pos.x] == WATER
-            start = int2(pos.x, pos.y - 1)
-    query(ship_destination) <| $ (pos: int2)
-        if pos.x < levelSize.x - 1 && level[pos.y * levelSize.x + pos.x + 1] == WATER
-            end = int2(pos.x + 1, pos.y)
-        elif pos.x > 0 && pos.x < levelSize.x - 1 && level[pos.y * levelSize.x + pos.x - 1] == WATER
-            end = int2(pos.x - 1, pos.y)
-        elif pos.y < levelSize.y - 1 && level[(pos.y + 1)* levelSize.x + pos.x] == WATER
-            end = int2(pos.x, pos.y + 1)
-        elif pos.y > 0 && level[(pos.y - 1)* levelSize.x + pos.x] == WATER
-            end = int2(pos.x, pos.y - 1)
+    ship_path |> clear()
+    query(ship_source) <| $ (Terminal_pos: int2)
+        if Terminal_pos.x < levelSize.x - 1 && level[Terminal_pos.y * levelSize.x + Terminal_pos.x + 1] == WATER
+            start = int2(Terminal_pos.x + 1, Terminal_pos.y)
+        elif Terminal_pos.x > 0 && Terminal_pos.x < levelSize.x - 1 && level[Terminal_pos.y * levelSize.x + Terminal_pos.x - 1] == WATER
+            start = int2(Terminal_pos.x - 1, Terminal_pos.y)
+        elif Terminal_pos.y < levelSize.y - 1 && level[(Terminal_pos.y + 1)* levelSize.x + Terminal_pos.x] == WATER
+            start = int2(Terminal_pos.x, Terminal_pos.y + 1)
+        elif Terminal_pos.y > 0 && level[(Terminal_pos.y - 1)* levelSize.x + Terminal_pos.x] == WATER
+            start = int2(Terminal_pos.x, Terminal_pos.y - 1)
+    query(ship_destination) <| $ (Terminal_pos: int2)
+        if Terminal_pos.x < levelSize.x - 1 && level[Terminal_pos.y * levelSize.x + Terminal_pos.x + 1] == WATER
+            end = int2(Terminal_pos.x + 1, Terminal_pos.y)
+        elif Terminal_pos.x > 0 && Terminal_pos.x < levelSize.x - 1 && level[Terminal_pos.y * levelSize.x + Terminal_pos.x - 1] == WATER
+            end = int2(Terminal_pos.x - 1, Terminal_pos.y)
+        elif Terminal_pos.y < levelSize.y - 1 && level[(Terminal_pos.y + 1)* levelSize.x + Terminal_pos.x] == WATER
+            end = int2(Terminal_pos.x, Terminal_pos.y + 1)
+        elif Terminal_pos.y > 0 && level[(Terminal_pos.y - 1)* levelSize.x + Terminal_pos.x] == WATER
+            end = int2(Terminal_pos.x, Terminal_pos.y - 1)
     ship_pathfinder(ship_path, start, end)
 
 def initialize_truck(var truck_path:array<int4>; truck_source, truck_destination:EntityId)
     var start:array<int4>
     var end:array<int4>
-    query(truck_source) <| $ (pos: int2)
+    truck_path |> clear()
+    query(truck_source) <| $ (Terminal_pos: int2)
         query() <| $ (road: Road)
-            if road.r_type == B_ROAD && sqr(road.pos.x - pos.x) + sqr(road.pos.y - pos.y) == 1
-                if (road.pos + road.dir) == pos || (road.pos - road.dir) == pos
+            if road.r_type == B_ROAD && sqr(road.pos.x - Terminal_pos.x) + sqr(road.pos.y - Terminal_pos.y) == 1
+                if (road.pos + road.dir) == Terminal_pos || (road.pos - road.dir) == Terminal_pos
                     let node = int4(road.pos.x, road.pos.y, road.dir.x, road.dir.y)
                     start |> push(node)
-    query(truck_destination) <| $ (pos: int2)
+    query(truck_destination) <| $ (Terminal_pos: int2)
         query() <| $ (road: Road)
-            if road.r_type == B_ROAD && sqr(road.pos.x - pos.x) + sqr(road.pos.y - pos.y) == 1  
-                if (road.pos + road.dir) == pos || (road.pos - road.dir) == pos
+            if road.r_type == B_ROAD && sqr(road.pos.x - Terminal_pos.x) + sqr(road.pos.y - Terminal_pos.y) == 1  
+                if (road.pos + road.dir) == Terminal_pos || (road.pos - road.dir) == Terminal_pos
                     let node = int4(road.pos.x, road.pos.y, road.dir.x, road.dir.y)
                     end |> push(node)
     truck_pathfinder(truck_path, start, end)
@@ -118,10 +120,11 @@ def draw_planes(unit:Plane)
 
 [decs(stage=draw)]
 def draw_ships(unit:Ship)
+    let imDir = unit.dir.x >= 0.0 ? 1.0 : -1.0
     if unit.model == SM_TITANIC
-        indTitanic |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(1.0, 1.0), 0.0)
+        indTitanic |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0), 0xFFFFFFFF, float2(imDir, 1.0), 0.0)
     elif unit.model == SM_CARGO
-        indCargo |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0),0xFFFFFFFF, float2(1.0, 1.0), 0.0)
+        indCargo |> draw_image_transformed(unit.pos.x, unit.pos.y, float4(0.0, 0.0, 128.0, 128.0),0xFFFFFFFF, float2(imDir, 1.0), 0.0)
     if !unit.revert
         draw_good_indicator(unit.product, unit.pos - float2(0.3, 1.0), 0.5, false)
 
@@ -138,7 +141,7 @@ def confirm_create_unit
     var confirm = false
     query <| $ (var builder : UnitBuilder; eid:EntityId)
         if builder.destination != INVALID_ENTITY_ID && builder.source != INVALID_ENTITY_ID && builder.selectedUnit >= 0 && builder.selectedGood >= 0
-            query(builder.source) <| $ (pos: int2)
+            query(builder.source) <| $ (Terminal_pos: int2)
                 find_query <| $ (var player:PlayerInfo)
                     if length(player.units) > builder.selectedUnit
                         var cnt = -1
@@ -146,16 +149,36 @@ def confirm_create_unit
                             if !unit.used && unit.u_type == builder.u_type
                                 ++cnt
                                 if cnt == builder.selectedUnit
-                                    create_unit(float2(pos.x, pos.y) + float2(0.5, 0.5), unit.u_type, unit.volume, builder.selectedGood, unit.model, unit.serviceCost,
+                                    create_unit(float2(Terminal_pos.x, Terminal_pos.y) + float2(0.5, 0.5), unit.u_type, unit.volume, builder.selectedGood, unit.model, unit.serviceCost,
                                     builder.destination, builder.source, unit.accel, unit.maxSpeed, unit.unloadingTime)
                                     delete_entity(eid)
                                     confirm = true
                                     unit.used = true
     return confirm
 
+def validate_path(path: array<int2>)
+    for item, i in path, range(length(path))
+        if item.x < 0 || item.y < 0 || item.x >= levelSize.x || item.y >= levelSize.y
+            return false
+        if i > 0 && abs(item.x - path[i-1].x) + abs(item.y - path[i-1].y) > 1
+            return false
+        if i < length(path) - 1 && abs(item.x - path[i+1].x) + abs(item.y - path[i+1].y) > 1
+            return false
+    return true
+
+def validate_path(path: array<int4>)
+    for item, i in path, range(length(path))
+        if item.x < 0 || item.y < 0 || item.x >= levelSize.x || item.y >= levelSize.y
+            return false
+        if i > 0 && abs(item.x - path[i-1].x) + abs(item.y - path[i-1].y) > 1
+            return false
+        if i < length(path) - 1 && abs(item.x - path[i+1].x) + abs(item.y - path[i+1].y) > 1
+            return false
+    return true
+
 def can_unload(term_pos:int2; good:int)
-    let found = find_query <| $ [REQUIRE(ftype)] (pos:int2; needGood:int)
-        if needGood == good && abs(pos.x - term_pos.x) + abs(pos.y - term_pos.y) <= 1
+    let found = find_query <| $ (factory:Factory)
+        if factory.needGood == good && abs(factory.pos.x - term_pos.x) + abs(factory.pos.y - term_pos.y) <= 1
             return true
     return found
 
@@ -164,13 +187,13 @@ def update_planes(var plane:Plane)
     let dt = get_delta_time()
     let destId = plane.revert ? plane.source : plane.destination
     if destId != INVALID_ENTITY_ID
-        query(destId) <| $ (pos: int2)
-            let destPos = float2(pos.x, pos.y) + float2(0.5, 0.5)
+        query(destId) <| $ (Terminal_pos: int2)
+            let destPos = float2(Terminal_pos.x, Terminal_pos.y) + float2(0.5, 0.5)
             if length_sq(destPos - plane.pos) < 0.0025
                 plane.pos = destPos
                 plane.speed = 0.0
                 plane.dir = float2(1.0, 0.0)
-                let canUn = plane.revert || can_unload(pos, plane.product)
+                let canUn = plane.revert || can_unload(Terminal_pos, plane.product)
                 if canUn
                     if plane.curUnloadTime <= -1.0
                         plane.curUnloadTime = plane.unloadingTime
@@ -235,14 +258,14 @@ def ship_pathfinder(var path: array<int2>; start, finish: int2)
 def update_ships(var ship:Ship)
     let dt = get_delta_time()
     let destId = ship.revert ? ship.source : ship.destination
-    query(destId) <| $ (pos: int2)
-        let destPos = float2(pos.x, pos.y) + float2(0.5, 0.5)
-        if length(ship.path) == 0
+    query(destId) <| $ (Terminal_pos: int2)
+        let destPos = float2(Terminal_pos.x, Terminal_pos.y) + float2(0.5, 0.5)
+        if length(ship.path) == 0 || !validate_path(ship.path)
             initialize_ship(ship.path, ship.source, ship.destination)
         if length_sq(destPos - ship.pos) < 0.0025
             ship.pos = destPos
             ship.speed = 0.0
-            let canUn = ship.revert || can_unload(pos, ship.product)
+            let canUn = ship.revert || can_unload(Terminal_pos, ship.product)
             if canUn
                 if ship.curUnloadTime <= -1.0
                     ship.curUnloadTime = ship.unloadingTime
@@ -263,7 +286,7 @@ def update_ships(var ship:Ship)
         else
             if length(ship.path) > ship.cur_point
                 var destP = float2(ship.path[ship.cur_point].x, ship.path[ship.cur_point].y) + float2(0.5, 0.5)
-                if length_sq(destP - ship.pos) < 0.0025
+                if length_sq(destP - ship.pos) < sqr(0.001)
                     ship.pos = destP
                     ship.cur_point += ship.revert ? -1 : 1
                 destP = length(ship.path) > ship.cur_point && ship.cur_point >= 0 ? (float2(ship.path[ship.cur_point].x, ship.path[ship.cur_point].y) + float2(0.5, 0.5)) : destPos
@@ -320,14 +343,14 @@ def truck_pathfinder(var path, start, finish: array<int4>)
 def update_trucks(var truck:Truck)
     let dt = get_delta_time()
     let destId = truck.revert ? truck.source : truck.destination
-    query(destId) <| $ (pos: int2)
-        let destPos = float2(pos.x, pos.y) + float2(0.5, 0.5)
-        if length(truck.path) == 0
+    query(destId) <| $ (Terminal_pos: int2)
+        let destPos = float2(Terminal_pos.x, Terminal_pos.y) + float2(0.5, 0.5)
+        if length(truck.path) == 0 || !validate_path(truck.path)
             initialize_truck(truck.path, truck.source, truck.destination)
         if length_sq(destPos - truck.pos) < 0.0025
             truck.pos = destPos
             truck.speed = 0.0 
-            let canUn = truck.revert || can_unload(pos, truck.product)
+            let canUn = truck.revert || can_unload(Terminal_pos, truck.product)
             if canUn
                 if truck.curUnloadTime <= -1.0
                     truck.curUnloadTime = truck.unloadingTime

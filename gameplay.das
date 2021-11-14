@@ -245,9 +245,17 @@ def create_unit_builder
 
 def try_create_terminal(position:float2; t_type:int)
     let worldPos = int2(screen_to_world(position))
-    let found = find_query <| $ (pos:int2)
-        if worldPos.x == pos.x && worldPos.y == pos.y
+    var found = find_query <| $ (Factory_pos:int2)
+        if worldPos.x == Factory_pos.x && worldPos.y == Factory_pos.y
             return true
+    if !found
+        found = find_query <| $ (Terminal_pos:int2)
+            if worldPos.x == Terminal_pos.x && worldPos.y == Terminal_pos.y
+                return true
+    if !found
+        found = find_query <| $ (Road_pos:int2)
+            if worldPos.x == Road_pos.x && worldPos.y == Road_pos.y
+                return true
     if found
         return false
     let cell = level[worldPos.y * levelSize.x + worldPos.x]
@@ -281,9 +289,13 @@ def try_create_terminal(position:float2; t_type:int)
 
 def try_create_road(position:float2; dir:int2; r_type:int)
     let worldPos = int2(screen_to_world(position))
-    var found = find_query <| $ (pos:int2)
-        if worldPos.x == pos.x && worldPos.y == pos.y
+    var found = find_query <| $ (Factory_pos:int2)
+        if worldPos.x == Factory_pos.x && worldPos.y == Factory_pos.y
             return true
+    if !found
+        found = find_query <| $ (Terminal_pos:int2)
+            if worldPos.x == Terminal_pos.x && worldPos.y == Terminal_pos.y
+                return true
     if found
         return false
     let cell = level[worldPos.y * levelSize.x + worldPos.x]

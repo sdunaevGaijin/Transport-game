@@ -51,14 +51,14 @@ let levels_src: array<string> <- [{auto
 var levelSize = int2(0, 0)
 var level : array<int>
 
-[decs_template(prefix)]
+[decs_template]
 struct City
     pos:int2
     name:string
     needGood:array<int2>
     haveGood:array<int2>
 
-[decs_template(prefix)]
+[decs_template]
 struct Factory
     ftype:int
     pos:int2
@@ -66,7 +66,7 @@ struct Factory
     productGood:int
 
 
-[decs_template(prefix)]
+[decs_template]
 struct Terminal
     pos:int2
     t_type:int
@@ -193,8 +193,8 @@ def draw_terminal(var term: Terminal; eid:EntityId)
 def try_get_terminal_id(position:float2; term_type:int)
     let worldPos = int2(screen_to_world(position))
     var eId = INVALID_ENTITY_ID
-    find_query <| $ (pos:int2; t_type:int; eid:EntityId)
-        if term_type == t_type && worldPos.x == pos.x && worldPos.y == pos.y
+    find_query <| $ (terminal:Terminal; eid:EntityId)
+        if term_type == terminal.t_type && worldPos.x == terminal.pos.x && worldPos.y == terminal.pos.y
             eId = eid
             return true
     return eId
@@ -202,11 +202,11 @@ def try_get_terminal_id(position:float2; term_type:int)
 def get_available_good(var goods: array<int>; terminal:EntityId)
     var termPos = int2(-1, -1)
     goods |> clear()
-    query(terminal) <| $ (pos:int2)
-        termPos = pos
-    query <| $ (pos:int2; productGood:int)
-        if abs(pos.x - termPos.x) + abs(pos.y - termPos.y) <= 1
-            if goods |> find_index(productGood) < 0
-                goods |> push(productGood)
+    query(terminal) <| $ (Terminal_pos:int2)
+        termPos = Terminal_pos
+    query <| $ (factory:Factory)
+        if abs(factory.pos.x - termPos.x) + abs(factory.pos.y - termPos.y) <= 1
+            if goods |> find_index(factory.productGood) < 0
+                goods |> push(factory.productGood)
 
 
