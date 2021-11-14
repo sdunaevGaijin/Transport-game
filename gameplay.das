@@ -40,9 +40,14 @@ def create_game
 
 def update_controls(dt:float)
     if get_key_down(VK_ESCAPE)
-        var found = find_query <| $ [REQUIRE(Builder_building_type)] ( eid:EntityId )
+        var found = find_query <| $ [REQUIRE(Help_help_tag)] ( eid:EntityId )
+            print("ecs")
             delete_entity(eid)
             return true
+        if !found
+            found = find_query <| $ [REQUIRE(Builder_building_type)] ( eid:EntityId )
+                delete_entity(eid)
+                return true
         if !found
             found = find_query <| $ [REQUIRE(UnitBuilder_u_type)] ( eid:EntityId )
                 delete_entity(eid)
@@ -54,6 +59,13 @@ def update_controls(dt:float)
             if !found
                 schedule_quit_game()
                 return true
+    if get_key_down(VK_F1)
+        let foundHelp = find_query <| $ [REQUIRE(Help_help_tag)] ( eid:EntityId )
+            return true
+        if !foundHelp
+            create_entity <| @ ( eid, cmp )
+                cmp |> set("eid", eid)
+                apply_decs_template(cmp, [[Help]])
     if get_key(VK_RIGHT)
         cameraPos.x = min(cameraPos.x + dt * mouseSpeed, float(levelSize.x))
     if get_key(VK_LEFT)
